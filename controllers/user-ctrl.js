@@ -1,5 +1,5 @@
 const User = require('../models/user-model');
-require('dotenv').config()
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
 createUser = (req, res) => {
@@ -8,7 +8,7 @@ createUser = (req, res) => {
     if (!email || !password) {
         return res.status(400).json({
             success: false,
-            error: 'Por favor, introduzca una contraseña y un correo',
+            error: 'You must provide an user',
         })
     }
 
@@ -41,7 +41,9 @@ getUsers = async (req, res) => {
                 .status(404)
                 .json({ success: false, error: `User not found` })
         }
-        return res.status(200).json({ success: true, data: users })
+        return res.status(200).json(users.map( u => {
+            return {email: u.email, id: u.id}
+        }))
     }).catch(err => console.log(err))
 }
 
@@ -51,26 +53,26 @@ authenticate = (req, res) => {
     User.findOne({ email }, function(err, user) {
         if (err) {
         console.error(err);
-        res.status(500)
+        return res.status(500)
             .json({
             error: 'Internal error please try again'
         });
         } else if (!user) {
-        res.status(401)
+        return res.status(401)
             .json({
             error: 'Incorrect email'
             });
         } else {
         user.isCorrectPassword(password, function(err, same) {
             if (err) {
-            res.status(500)
+            return res.status(500)
                 .json({
                 error: 'Internal error please try again'
             });
             } else if (!same) {
-            res.status(401)
+            return res.status(401)
                 .json({
-                error: 'Incorrect email or password'
+                error: 'Incorrect password'
             });
             } else {
             // Issue token
@@ -78,16 +80,18 @@ authenticate = (req, res) => {
             const token = jwt.sign(payload, process.env.secret, {
                 expiresIn: '1h'
             });
-            res.cookie('token', token, { httpOnly: true })
-                .sendStatus(200);
+            return res.status(200)
+                    .json({ token: token });
             }
         });
         }
     });
+    //return res;
 }
 
 
 module.exports = {
     createUser,
     getUsers,
+    authenticate,
 }
