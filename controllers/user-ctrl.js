@@ -1,20 +1,16 @@
 const User = require('../models/user-model')
 
 createUser = (req, res) => {
-    const body = req.body
+    const { email, password } = req.body;
 
-    if (!body) {
+    if (!email || !password) {
         return res.status(400).json({
             success: false,
-            error: 'You must provide an user',
+            error: 'Por favor, introduzca una contraseña y un correo',
         })
     }
 
-    const user = new User(body)
-
-    if (!user) {
-        return res.status(400).json({ success: false, error: err })
-    }
+    const user = new User({ email, password });
 
     user
         .save()
