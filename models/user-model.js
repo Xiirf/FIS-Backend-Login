@@ -1,3 +1,30 @@
+/**
+ * @swagger
+ *  components:
+ *    schemas:
+ *      User:
+ *        type: object
+ *        required:
+ *          - email
+ *          - login
+ *          - password
+ *        properties:
+ *          email:
+ *            type: string
+ *            format: email
+ *            description: Email for the user, needs to be unique.
+ *          login:
+ *            type: string
+ *            description: Login for the user, needs to be unique.
+ *          password:
+ *            type: string
+ *            description: Password for the user
+ *        example:
+ *          email: test@email.com
+ *          login: loginTest
+ *          password: mdpTest
+ *           
+ */
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt');
 

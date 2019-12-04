@@ -1,4 +1,1 @@
-- authentification : retourner id + nom utilisateur
-- getUsers juste nom utilisateurs + id
-- Savoir si utilisateur existe déjà
-- Savoir si mail existe déjà
+restreindre email bd
