@@ -3,7 +3,7 @@ FROM node:9-alpine
 # Set the working directory to /api
 WORKDIR /api
 # copy package.json into the container at /api
-COPY package*.json /api/
+COPY package.json /api/
 # install dependencies
 RUN apk --no-cache add --virtual builds-deps build-base python
 RUN npm config set python /usr/bin/python
