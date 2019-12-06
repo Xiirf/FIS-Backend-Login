@@ -1,4 +1,16 @@
+sudo: required
 language: node_js
+node_js:
+  - "9"
+services:
+  - docker
+
+install:
+  - npm install
+
+script:
+  - npm test
+
 deploy:
   skip_cleanup: true
   provider: heroku
