@@ -7,6 +7,7 @@
 const User = require('../models/user-model');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
 /**
  * @swagger
@@ -365,39 +366,41 @@ deleteUser = (req, res) => {
 /**
  * @swagger
  * path:
- *  /user/{email}/forgottenPassword:
- *    get:
- *      summary: Get Token for a given email
+ *  /user/forgottenPassword:
+ *    post:
+ *      summary: Send an email to change password
  *      tags: [Users]
- *      parameters: 
- *        - in: path
- *          name: email
- *          schema: 
- *            type: string
- *          required:
- *            email
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              required:
+ *                - email
+ *              properties:
+ *                email:
+ *                  type: string
+ *                  description: User email.
+ *              example:
+ *                email: test@email.com
  *      responses:
  *        "200":
- *          description: Return token
- *          content:
- *            application/json:
- *              schema:
- *                type: object
- *                required:
- *                  - token
- *                properties:
- *                  token:
- *                    type: string
- *                    description: Toker authorization
+ *          description: Email send.
  *        "404":
  *          description: Ressource not found
  *        "500":
  *          description: Internal error
  */
 forgottenPassword = (req, res) => {
-    var email = req.params.email;
+    var email = req.body.email;
+    if (!email) {
+        return res.status(400).json({
+            error: 'You must provide an email',
+        })
+    }
 
-    User.findOne({email}, (err, user) => {
+    User.findOne({ email }, (err, user) => {
         if (err) {
             return res.status(500).json({ error: err })
         } else if (!user) {
@@ -411,8 +414,34 @@ forgottenPassword = (req, res) => {
         const token = jwt.sign(payload, process.env.secret, {
             expiresIn: '1h'
         });
-        return res.status(200)
-                            .json({ token: token });
+
+        var transporter = nodemailer.createTransport({
+            host: "smtp-mail.outlook.com", // hostname
+            secureConnection: false, // TLS requires secureConnection to be false
+            port: 587, // port for secure SMTP
+            tls: {
+                ciphers:'SSLv3'
+            },
+            auth: {
+              user: 'fistest@outlook.fr',
+              pass: 'testFIS2019'
+            }
+        });
+
+        var mailOptions = {
+            from: 'fistest@outlook.fr',
+            to: email,
+            subject: 'Password change',
+            text: token
+        };
+
+        transporter.sendMail(mailOptions, function(error, info){
+            if (error) {
+                return res.status(500).json({ error: error })
+            } else {
+                return res.status(200).json({message: info});
+            }
+        });
     })
 }
 

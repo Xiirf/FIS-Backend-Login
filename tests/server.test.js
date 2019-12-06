@@ -19,7 +19,7 @@ describe('Test with 2 users mock', () => {
     let modelUserFindOneAndDelete;
 
     beforeAll((done) => {
-        const user1 = new modelUser({ email: "email@Test1", login: "loginTest1", password: "passwordTest1" });
+        const user1 = new modelUser({ email: "email@Test1.fr", login: "loginTest1", password: "passwordTest1" });
         const user2 = new modelUser({ email: "email@Test2", login: "loginTest2", password: "passwordTest2" });
         let users = [user1, user2];
 
@@ -205,6 +205,25 @@ describe('Test with 2 users mock', () => {
                     .set('Authorization', `Bearer ${token}`)
                     .then((response) => {
                         expect(response.statusCode).toBe(200);
+            });
+        });
+    });
+    describe('POST /user/forgottenPassword', () => {
+        it('It should return 200', () => {
+            return request(app)
+                    .post("/api/v1/user/forgottenPassword")
+                    .send({
+                        email: "email@Test1.fr"
+                    })
+                    .then((response) => {
+                        expect(response.statusCode).toBe(200);
+            });
+        });
+        it('It should return 400', () => {
+            return request(app)
+                    .post("/api/v1/user/forgottenPassword")
+                    .then((response) => {
+                        expect(response.statusCode).toBe(400);
             });
         });
     });

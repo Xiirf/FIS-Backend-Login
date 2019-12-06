@@ -9,9 +9,9 @@ const router = express.Router();
 
 router.post('/user', UserCtrl.createUser);
 router.post('/authenticate', UserCtrl.authenticate);
+router.post('/user/forgottenPassword', UserCtrl.forgottenPassword);
 router.get('/users', withAuth, UserCtrl.getUsers);
 router.get('/user', withAuth, UserCtrl.getUser);
-router.get('/user/:login/forgottenPassword', UserCtrl.forgottenPassword);
 //Permet de savoir si le token est bon
 router.get('/checkToken', withAuth, function(req, res) {
     res.sendStatus(200);
