@@ -8,6 +8,7 @@ COPY package*.json /api/
 RUN npm install
 # Copy the current directory contents into the container at /api
 COPY . /api/
+RUN npm rebuild bcrypt --update-binary
 # Make port 80 available to the world outside this container
 EXPOSE 6200
 # Run the app when the container launches

@@ -53,10 +53,7 @@ describe('Test with 2 users mock', () => {
                 password: "passwordTest1",
             })
             .end((err, response) => {
-                console.log("REP " + JSON.stringify(response));
-                console.log("EREUR" + err);
                 token = response.body.token; // save the token!
-                console.log(token);
                 done();
             });
     });
@@ -68,7 +65,6 @@ describe('Test with 2 users mock', () => {
 
     describe('GET /users', () => {
         it('It should return all users', () => {
-            console.log(token);
             return request(app)
                     .get("/api/v1/users")
                     .set('Authorization', `Bearer ${token}`)
