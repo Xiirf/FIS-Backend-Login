@@ -80,13 +80,13 @@ createUser = (req, res) => {
  *                    description: User login.
  *        "404":
  *          description: Ressource not found
- *        "400":
- *          description: Request error
+ *        "500":
+ *          description: Internal error
  */
 getUsers = (req, res) => {
     User.find({}, (err, users) => {
         if (err) {
-            return res.status(400).json({ error: err })
+            return res.status(500).json({ error: err })
         }
         if (!users.length) {
             return res
@@ -102,112 +102,88 @@ getUsers = (req, res) => {
 /**
  * @swagger
  * path:
- *  /user/{login}/email:
- *    put:
- *      summary: Update email
+ *  /user:
+ *    get:
+ *      summary: Get actual user info
  *      tags: [Users]
- *      parameters: 
- *        - in: path
- *          name: login
- *          schema: 
- *            type: string
- *          required:
- *            login
- *      requestBody:
- *        required: true
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              required:
- *                - newEmail
- *              properties:
- *                newEmail:
- *                  type: string
- *                  format: email
- *                  description: Email for the user.
- *              example:
- *                newEmail: test@email.com
  *      responses:
  *        "200":
- *          description: User updated
- *        "400":
- *          description: Parameters are missing
+ *          description: Return all users login and email
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                required:
+ *                  - email
+ *                  - login
+ *                properties:
+ *                  email:
+ *                    type: string
+ *                    description: User email.
+ *                  login:
+ *                    type: string
+ *                    description: User login.
+ *        "404":
+ *          description: Ressource not found
  *        "500":
- *          description: Server error
+ *          description: Internal error
  */
-updateEmail = (req, res) => {
-    var login = req.params.login;
-    
-    User.findOne({ login }, function(err, user) {
+getUser = (req, res) => {
+    var token = req.headers['authorization'];
+    token = token.replace('Bearer ', '');
+    const login = jwt.decode(token).login;
+
+    User.findOne({login}, (err, user) => {
         if (err) {
-            console.error(err);
-            return res.status(500)
-                .json({
-                error: 'Internal error please try again'
-            });
+            return res.status(500).json({ error: err })
         } else if (!user) {
-            return res.status(400)
+            return res.status(404)
                 .json({
                 error: 'Incorrect login'
                 });
         }
-        var newEmail = req.body.newEmail;
-    
-        if (!newEmail){
-            return res.status(400).json({
-                success: false,
-                error: 'You must provide an email',
-            })
-        }
-        user.email = req.body.newEmail;
-        updateCollection(res, user);
-    });
+        return res.status(200).json({email: user.email, login: user.login})
+    })
 }
 
 /**
  * @swagger
  * path:
- *  /user/{login}/password:
+ *  /user:
  *    put:
- *      summary: Update password
+ *      summary: Update User
  *      tags: [Users]
- *      parameters: 
- *        - in: path
- *          name: login
- *          schema: 
- *            type: string
- *          required:
- *            login
  *      requestBody:
  *        required: true
  *        content:
  *          application/json:
  *            schema:
  *              type: object
- *              required:
- *                - oldPassword
- *                - newPassword
  *              properties:
- *                oldPassword:
+ *                newEmail:
  *                  type: string
- *                  description: Old password.
+ *                  format: email
+ *                  description: Email for the user.
  *                newPassword:
  *                  type: string
  *                  description: New password.
  *              example:
- *                oldPassword: oldMDP
- *                newPassword: newMDP
+ *                newEmail: test@email.com
+ *                newPassword: newMdp
  *      responses:
  *        "200":
  *          description: User updated
  *        "400":
  *          description: Parameters are missing
+ *        "404":
+ *          description: Ressource not found
  *        "500":
  *          description: Server error
  */
-updatePassword = (req, res) => {
-    var login = req.params.login;
+updateUser = (req, res) => {
+    var token = req.headers['authorization'];
+    token = token.replace('Bearer ', '');
+    const login = jwt.decode(token).login;
     
     User.findOne({ login }, function(err, user) {
         if (err) {
@@ -217,40 +193,26 @@ updatePassword = (req, res) => {
                 error: 'Internal error please try again'
             });
         } else if (!user) {
-            return res.status(400)
+            return res.status(404)
                 .json({
                 error: 'Incorrect login'
                 });
-        } else {
-            var newPassword = req.body.newPassword;
-            var oldPassword = req.body.oldPassword;
-
-            if (!newPassword || !oldPassword){
-                return res.status(400).json({
-                    success: false,
-                    error: 'You must provide an old and new password',
-                })
-            }
-
-            //vérifier si mdp est bon (faire méthode)
-            user.isCorrectPassword(oldPassword, function(err, same) {
-                if (err) {
-                    console.log(err);
-                    return res.status(500)
-                        .json({
-                        error: 'Internal error please try again'
-                    });
-                } else if (!same) {
-                    return res.status(400)
-                        .json({
-                        error: 'Incorrect password'
-                    });
-                } else {
-                    user.password = req.body.newPassword;
-                    updateCollection(res, user);
-                }
-            });
         }
+
+        if(!req.body.newEmail && !req.body.newPassword){
+            return res.status(400)
+                .json({
+                error: 'No parameter to update'
+                });
+        }else {
+            if(req.body.newEmail){
+                user.email = req.body.newEmail;
+            } 
+            if (req.body.newPassword){
+                user.password = req.body.newPassword;
+            }
+        }
+        updateCollection(res, user);
     });
 }
 
@@ -274,7 +236,7 @@ updateCollection = (res, collection) => {
  * path:
  *  /authenticate:
  *    post:
- *      summary: Update password
+ *      summary: Authenticate
  *      tags: [Users]
  *      requestBody:
  *        required: true
@@ -310,20 +272,26 @@ updateCollection = (res, collection) => {
  *                    description: Token.
  *        "400":
  *          description: Parameters are missing
+ *        "404":
+ *          description: Ressource not found
  *        "500":
  *          description: Server error
  */
 authenticate = (req, res) => {
     const { login, password } = req.body;
+    if (!password || !login) {
+        return res.status(400).json({
+            error: 'You must provide an user (password/login)',
+        })
+    }
     User.findOne({ login }, function(err, user) {
         if (err) {
-            console.error(err);
             return res.status(500)
                 .json({
                 error: 'Internal error please try again'
             });
         } else if (!user) {
-            return res.status(400)
+            return res.status(404)
                 .json({
                 error: 'Incorrect login or password '
                 });
@@ -356,17 +324,10 @@ authenticate = (req, res) => {
 /**
  * @swagger
  * path:
- *  /user/{login}:
+ *  /user:
  *    delete:
  *      summary: Delete user
  *      tags: [Users]
- *      parameters: 
- *        - in: path
- *          name: login
- *          schema: 
- *            type: string
- *          required:
- *            login
  *      responses:
  *        "200":
  *          description: User deleted
@@ -378,16 +339,17 @@ authenticate = (req, res) => {
  *          description: Parameters are missing
  *        "404":
  *          description: User not found
+ *        "500":
+ *          description: Internal error
  */
 deleteUser = (req, res) => {
-    if (!req.params.login){
-        return res.status(400).json({ error: 'Parameters are missing' })
-    }
-    console.log(req.params.login);
+    var token = req.headers['authorization'];
+    token = token.replace('Bearer ', '');
+    const login = jwt.decode(token).login;
 
-    User.findOneAndDelete({ login: req.params.login }, (err, user) => {
+    User.findOneAndDelete({ login }, (err, user) => {
         if (err) {
-            return res.status(400).json({ error: err })
+            return res.status(500).json({ error: err })
         }
 
         if (!user) {
@@ -400,12 +362,66 @@ deleteUser = (req, res) => {
     })
 }
 
+/**
+ * @swagger
+ * path:
+ *  /user/{email}/forgottenPassword:
+ *    get:
+ *      summary: Get Token for a given email
+ *      tags: [Users]
+ *      parameters: 
+ *        - in: path
+ *          name: email
+ *          schema: 
+ *            type: string
+ *          required:
+ *            email
+ *      responses:
+ *        "200":
+ *          description: Return token
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                required:
+ *                  - token
+ *                properties:
+ *                  token:
+ *                    type: string
+ *                    description: Toker authorization
+ *        "404":
+ *          description: Ressource not found
+ *        "500":
+ *          description: Internal error
+ */
+forgottenPassword = (req, res) => {
+    var email = req.params.email;
+
+    User.findOne({email}, (err, user) => {
+        if (err) {
+            return res.status(500).json({ error: err })
+        } else if (!user) {
+            return res.status(404)
+                .json({
+                error: 'Incorrect email'
+                });
+        }
+        const login = user.login
+        const payload = { login };
+        const token = jwt.sign(payload, process.env.secret, {
+            expiresIn: '1h'
+        });
+        return res.status(200)
+                            .json({ token: token });
+    })
+}
 
 module.exports = {
     createUser,
     getUsers,
     authenticate,
-    updateEmail,
-    updatePassword,
+    updateUser,
     deleteUser,
+    getUser,
+    forgottenPassword,
 }
