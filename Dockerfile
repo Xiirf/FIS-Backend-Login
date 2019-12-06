@@ -1,12 +1,19 @@
 # Use a lighter version of Node as a parent image
-FROM node:9-alpine
+FROM mhart/alpine-node:latest
+RUN apk update
 # Set the working directory to /api
 WORKDIR /api
 # copy package.json into the container at /api
 COPY package*.json /api/
 # install dependencies
+RUN apk --no-cache add --virtual builds-deps build-base python
+RUN npm config set python /usr/bin/python
+RUN npm i npm@latest -g
+RUN apk update && apk add --virtual build-dependencies
 RUN npm install
-RUN npm rebuild bcrypt --update-binary
+
+RUN npm rebuild bcrypt --build-from-source
+RUN apk del builds-deps
 # Copy the current directory contents into the container at /api
 COPY . /api/
 # Make port 80 available to the world outside this container
