@@ -1,0 +1,7 @@
+language: node_js
+deploy:
+  skip_cleanup: true
+  provider: heroku
+  api_key:
+    secure: 3da49a97-b242-4845-ab4b-8440a5cfebcc
+  app: fis-backend-login
