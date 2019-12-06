@@ -24,10 +24,10 @@ const options = {
     swaggerDefinition: {
       openapi: "3.0.0",
       info: {
-        title: "Time to document that Express API you built",
+        title: "FIS backend login",
         version: "1.0.0",
         description:
-          "A test project to understand how easy it is to document and Express API",
+          "Documentation API FIS-backend-login",
         license: {
           name: "MIT",
           url: "https://choosealicense.com/licenses/mit/"
@@ -52,13 +52,12 @@ const options = {
       }],
       servers: [
         {
-          url: "http://localhost:6201/api/v1"
+          //url: "http://localhost:6201/api/v1"
+          url: "https://fis-backend-login.herokuapp.com/api/v1"
         }
       ]
     },
-    apis: ["./models/user-model.js", "./controllers/user-ctrl.js"],
-    
-        
+    apis: ["./models/user-model.js", "./controllers/user-ctrl.js"],        
   };
   const specs = swaggerJsdoc(options);
   router.use("/docs", swaggerUi.serve);
