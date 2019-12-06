@@ -18,7 +18,7 @@ describe('Test with 2 users mock', () => {
     let modelUserPassword;
     let modelUserFindOneAndDelete;
 
-    beforeAll((done) => {
+    beforeAll( (done) => {
         const user1 = new modelUser({ email: "email@Test1.fr", login: "loginTest1", password: "passwordTest1" });
         const user2 = new modelUser({ email: "email@Test2", login: "loginTest2", password: "passwordTest2" });
         let users = [user1, user2];
@@ -56,6 +56,7 @@ describe('Test with 2 users mock', () => {
                 token = response.body.token; // save the token!
                 done();
             });
+        console.log(token);
     });
 
     afterAll(async () => {
@@ -64,7 +65,9 @@ describe('Test with 2 users mock', () => {
     
 
     describe('GET /users', () => {
+        console.log("TEST = " + token);
         it('It should return all users', () => {
+            console.log(token);
             return request(app)
                     .get("/api/v1/users")
                     .set('Authorization', `Bearer ${token}`)
@@ -209,16 +212,6 @@ describe('Test with 2 users mock', () => {
         });
     });
     describe('POST /user/forgottenPassword', () => {
-        it('It should return 200', () => {
-            return request(app)
-                    .post("/api/v1/user/forgottenPassword")
-                    .send({
-                        email: "email@Test1.fr"
-                    })
-                    .then((response) => {
-                        expect(response.statusCode).toBe(200);
-            });
-        });
         it('It should return 400', () => {
             return request(app)
                     .post("/api/v1/user/forgottenPassword")
