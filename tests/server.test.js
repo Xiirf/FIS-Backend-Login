@@ -67,7 +67,7 @@ describe('Test with 2 users mock', () => {
     
 
     describe('GET /users', () => {
-        it('It should return all users', async () => {
+        it('It should return all users', () => {
             console.log(token);
             return request(app)
                     .get("/api/v1/users")
