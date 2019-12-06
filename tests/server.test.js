@@ -54,9 +54,9 @@ describe('Test with 2 users mock', () => {
             })
             .end((err, response) => {
                 token = response.body.token; // save the token!
+                console.log(token);
                 done();
             });
-        console.log(token);
     });
 
     afterAll(async () => {
