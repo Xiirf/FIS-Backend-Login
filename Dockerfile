@@ -1,5 +1,5 @@
 # Use a lighter version of Node as a parent image
-FROM node:9-alpine
+FROM node:latest
 # Set the working directory to /api
 WORKDIR /api
 # copy package.json into the container at /api
