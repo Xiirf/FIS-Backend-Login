@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:13.2.0
 WORKDIR /app
 COPY . ./
 RUN yarn
