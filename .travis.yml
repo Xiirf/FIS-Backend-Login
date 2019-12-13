@@ -12,9 +12,10 @@ script:
   - npm test
 
 env:
-  - secret=$secret
-  - uriDataBase=$uriDataBase
-  - urlApp=$urlApp
+  global:
+    - secret=$secret
+    - uriDataBase=$uriDataBase
+    - urlApp=$urlApp
 
 deploy:
   skip_cleanup: true

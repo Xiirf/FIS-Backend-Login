@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 mongoose
     .connect(process.env.uriDataBase, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
     .catch(e => {
+        console.error('URI', process.env.uriDataBase)
         console.error('Connection error', e.message)
     })
 
