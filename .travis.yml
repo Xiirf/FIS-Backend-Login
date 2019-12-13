@@ -14,6 +14,5 @@ script:
 deploy:
   skip_cleanup: true
   provider: heroku
-  api_key:
-    secure: $API_KEY
+  api_key: $API_KEY
   app: fis-backend-login
