@@ -1,6 +1,7 @@
 const request = require('supertest');
 const app = require('../app');
 const db = require('../db');
+const mongoose = require('mongoose')
 
 const apiPort = (process.env.PORT || 6201);
 
@@ -14,11 +15,11 @@ describe('Test the root path', () => {
 describe('Integration test', () => {
     let token;
     const user = { email: "email@Test1.fr", login: "loginTest1", password: "passwordTest1" };
+    let serv;
 
     beforeAll((done) => {
-        console.log(process.env.API_KEY)
         db.on('error', console.error.bind(console, 'MongoDB connection error:'))
-        app.listen(apiPort, () => console.log(`Server running on port ${apiPort}`));
+        serv = app.listen(apiPort, () => console.log(`Server running on port ${apiPort}`));
         db.dropCollection('users', () => {
             console.log('Cleaning - users collection dropped');
         });
@@ -26,7 +27,8 @@ describe('Integration test', () => {
     })
 
     afterAll(async () => {
-        await new Promise(resolve => setTimeout(() => resolve(), 500)); // avoid jest open handle error
+        db.close();
+        serv.close();
     });
 
     describe('POST /user', () => {
