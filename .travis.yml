@@ -12,7 +12,8 @@ script:
   - npm test
 
 deploy:
-  skip_cleanup: true
   provider: heroku
   api_key: $API_KEY
-  app: fis-backend-login
+  app: fis-frontend
+  on:
+    branch: master
