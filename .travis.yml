@@ -11,12 +11,6 @@ install:
 script:
   - npm test
 
-env:
-  global:
-    - secret=$secret
-    - uriDataBase=$uriDataBase
-    - urlApp=$urlApp
-
 deploy:
   skip_cleanup: true
   provider: heroku
