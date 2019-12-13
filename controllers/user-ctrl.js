@@ -94,9 +94,10 @@ getUsers = (req, res) => {
                 .status(404)
                 .json({ error: 'User not found' })
         }
-        return res.status(200).json(users.map( u => {
+        userList = users.map( u => {
             return {email: u.email, login: u.login}
-        }))
+        })
+        return res.status(200).json({users: userList})
     })
 }
 
