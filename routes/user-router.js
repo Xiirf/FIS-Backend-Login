@@ -12,7 +12,21 @@ router.post('/authenticate', UserCtrl.authenticate);
 router.post('/user/forgottenPassword', UserCtrl.forgottenPassword);
 router.get('/users', withAuth, UserCtrl.getUsers);
 router.get('/user', withAuth, UserCtrl.getUser);
-//Permet de savoir si le token est bon
+/**
+ * @swagger
+ * path:
+ *  /checkToken:
+ *    get:
+ *      summary: Check if the token is valid
+ *      tags: [Token]
+ *      responses:
+ *        "200":
+ *          description: Token is valid.
+ *        "401":
+ *          description: Unauthorized
+ *        "500":
+ *          description: Internal error
+ */
 router.get('/checkToken', withAuth, function(req, res) {
     res.sendStatus(200);
 });
@@ -52,12 +66,11 @@ const options = {
       }],
       servers: [
         {
-          //url: "http://localhost:6201/api/v1"
-          url: "https://fis-backend-login.herokuapp.com/api/v1"
+          url: process.env.urlApp
         }
       ]
     },
-    apis: ["./models/user-model.js", "./controllers/user-ctrl.js"],        
+    apis: ["./models/user-model.js", "./controllers/user-ctrl.js", "./routes/user-router.js"],        
   };
   const specs = swaggerJsdoc(options);
   router.use("/docs", swaggerUi.serve);
