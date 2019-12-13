@@ -16,6 +16,7 @@ describe('Integration test', () => {
     const user = { email: "email@Test1.fr", login: "loginTest1", password: "passwordTest1" };
 
     beforeAll((done) => {
+        console.log(process.env.API_KEY)
         db.on('error', console.error.bind(console, 'MongoDB connection error:'))
         app.listen(apiPort, () => console.log(`Server running on port ${apiPort}`));
         db.dropCollection('users', () => {
