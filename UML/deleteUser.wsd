@@ -1,0 +1,42 @@
+@startuml
+title User deleteUser
+boundary API_Gateway
+control UserRouter
+control Middleware
+control UserController
+dataBase UserDB
+activate API_Gateway
+API_Gateway -> UserRouter : deleteUser(token)
+activate UserRouter
+UserRouter -> Middleware : withAuth(token)
+activate Middleware
+alt !token
+    Middleware -> UserRouter : 'Unauthorized: No token provided (401)'
+    UserRouter -> API_Gateway : 'Unauthorized: No token provided (401)'
+else 
+    Middleware -> Middleware : jwt.verify(token)
+    alt token != valid
+        Middleware -> UserRouter : 'Unauthorized: Invalid token (401)'
+        UserRouter -> API_Gateway : 'Unauthorized: Invalid token (401)'
+    else
+        Middleware -> UserRouter : Token Valid
+        deactivate Middleware
+        UserRouter -> UserController : deleteUser(login)
+        activate UserController
+        UserController -> UserDB : findOneAndDelete(login)
+        activate UserDB
+        UserDB -> UserController : userDeleted
+        deactivate UserDB
+        alt userDeleted == null
+            UserController -> UserRouter : 'User not found (404)'
+            UserRouter -> API_Gateway : 'User not found (404)'
+        else
+            UserController -> UserRouter : return(res.status(200), userDeleted)
+            UserRouter -> API_Gateway : return(res.status(200), userDeleted)
+        end
+        deactivate UserController
+        deactivate UserRouter
+        deactivate API_Gateway
+    end
+end
+@enduml

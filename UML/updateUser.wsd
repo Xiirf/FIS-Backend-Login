@@ -1,0 +1,56 @@
+@startuml
+title User updateUser
+boundary API_Gateway
+control UserRouter
+control Middleware
+control UserController
+dataBase UserDB
+activate API_Gateway
+API_Gateway -> UserRouter : updateUser(Token, newEmail, newPassword)
+activate UserRouter
+UserRouter -> Middleware : withAuth(token)
+activate Middleware
+alt !token
+    Middleware -> UserRouter : 'Unauthorized: No token provided (401)'
+    UserRouter -> API_Gateway : 'Unauthorized: No token provided (401)'
+else 
+    Middleware -> Middleware : jwt.verify(token)
+    alt token != valid
+        Middleware -> UserRouter : 'Unauthorized: Invalid token (401)'
+        UserRouter -> API_Gateway : 'Unauthorized: Invalid token (401)'
+    else
+        Middleware -> UserRouter : Token Valid
+        deactivate Middleware
+        UserRouter -> UserController : updateUser(token, newEmail, newPassword)
+        activate UserController
+        UserController -> UserDB : findOne(login)
+        activate UserDB
+        UserDB -> UserController : userFind
+        deactivate UserDB
+        alt userFind == null
+            UserController -> UserRouter : 'User not found (404)'
+            UserRouter -> API_Gateway : 'User not found (404)'
+        else
+            alt (!newEmail && !newPassword)
+                UserController -> UserRouter : 'No parameter to update (400)'
+                UserRouter -> API_Gateway : 'No parameter to update (400)'
+            else
+                UserController -> UserDB : updateCollection(user)
+                activate UserDB
+                UserDB -> UserController : return(saveResult)
+                deactivate UserDB
+                alt saveResult == error
+                    UserController -> UserRouter : 'User not updated!(400)'
+                    UserRouter -> API_Gateway : 'User not updated! (400)'
+                else
+                    UserController -> UserRouter : 'User updated! (200)'
+                    UserRouter -> API_Gateway : 'User updated! (200)'
+                end
+            end
+        end
+        deactivate UserController
+        deactivate UserRouter
+        deactivate API_Gateway
+    end
+end
+@enduml

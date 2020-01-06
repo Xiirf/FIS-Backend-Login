@@ -1,0 +1,44 @@
+@startuml
+title User getUsers
+boundary API_Gateway
+control UserRouter
+control Middleware
+control UserController
+dataBase UserDB
+activate API_Gateway
+API_Gateway -> UserRouter : getUsers(token)
+activate UserRouter
+UserRouter -> Middleware : withAuth(token)
+activate Middleware
+alt !token
+    Middleware -> UserRouter : 'Unauthorized: No token provided (401)'
+    UserRouter -> API_Gateway : 'Unauthorized: No token provided (401)'
+else 
+    Middleware -> Middleware : jwt.verify(token)
+    alt token != valid
+        Middleware -> UserRouter : 'Unauthorized: Invalid token (401)'
+        UserRouter -> API_Gateway : 'Unauthorized: Invalid token (401)'
+    else
+        Middleware -> UserRouter : Token Valid
+        deactivate Middleware
+        UserRouter -> UserController : getUsers()
+        activate UserController
+        UserController -> UserDB : find()
+        activate UserDB
+        UserDB -> UserController : users[]
+        deactivate UserDB
+        alt users.length == 0
+            UserController -> UserRouter : 'User not found 404'
+            UserRouter -> API_Gateway : 'User not found 404'
+        else
+            UserController -> UserRouter : return(res.status(200), users)
+            UserRouter -> API_Gateway : return(res.status(200), users)
+        end
+        deactivate UserController
+        deactivate UserRouter
+        deactivate API_Gateway
+    end
+end
+
+
+@enduml

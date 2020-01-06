@@ -1,0 +1,31 @@
+@startuml
+title User creation
+boundary API_Gateway
+control UserRouter
+control UserController
+dataBase UserDB
+activate API_Gateway
+API_Gateway -> UserRouter : createUser(email, login, password)
+activate UserRouter
+UserRouter -> UserController : createUser(email, login, password)
+activate UserController
+alt (!login || !password || !email)
+    UserController -> UserRouter : 'You must provide an user (400)'
+    UserRouter -> API_Gateway : 'You must provide an user (400)'
+else
+    UserController -> UserDB : save(user)
+    activate UserDB
+    UserDB -> UserController : return(saveResult)
+    deactivate UserDB
+    alt saveResult == error
+        UserController -> UserRouter : 'Login or email already used!(401)'
+        UserRouter -> API_Gateway : 'Login or email already used!(401)'
+    else
+        UserController -> UserRouter : return(res.status(201))
+        UserRouter -> API_Gateway : return(res.status(201))
+    end
+    deactivate UserController
+    deactivate UserRouter
+end
+deactivate API_Gateway
+@enduml

@@ -1,0 +1,37 @@
+@startuml
+title User authentication
+boundary API_Gateway
+control UserRouter
+control UserController
+dataBase UserDB
+activate API_Gateway
+API_Gateway -> UserRouter : authenticate(login, password)
+activate UserRouter
+UserRouter -> UserController : authenticate(login, password)
+activate UserController
+alt (!login || !password)
+    UserController -> UserRouter : 'You must provide an user (400)'
+    UserRouter -> API_Gateway : 'You must provide an user (400)'
+else
+    UserController -> UserDB : find(login)
+    activate UserDB
+    UserDB -> UserController : return(userFind)
+    deactivate UserDB
+    alt userFind == null
+        UserController -> UserRouter : 'User not found (404)'
+        UserRouter -> API_Gateway : 'User not found (404)'
+    else userFind != null
+        UserController -> UserController : isCorrectPassword(password)
+        alt isCorrectPassword(Password) == true
+            UserController -> UserRouter : return(res.status(200), token)
+            UserRouter -> API_Gateway : return(res.status(200), token)
+        else isCorrectPassword(Password) == false
+            UserController -> UserRouter : 'Incorrect password or login (404)'
+            UserRouter -> API_Gateway : 'Incorrect password or login(404)'
+        end
+    end
+    deactivate UserController
+    deactivate UserRouter
+end
+deactivate API_Gateway
+@enduml
