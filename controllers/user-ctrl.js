@@ -35,7 +35,7 @@ createUser = (req, res) => {
 
     if (!email || !password || !login) {
         return res.status(400).json({
-            error: 'You must provide an user (email/password/login)',
+            error: 'Debe indicar un usuario (email/contraseña/login)',
         })
     }
 
@@ -45,12 +45,12 @@ createUser = (req, res) => {
         .save()
         .then(() => {
             return res.status(201).json({
-                message: 'User created!',
+                message: 'Usuario creado!',
             })
         })
         .catch(() => {
             return res.status(401).json({
-                error: 'Login or email already used!',
+                error: 'Login o correo electrónico ya utilizado!',
             })
         })
 }
@@ -92,7 +92,7 @@ getUsers = (req, res) => {
         if (!users.length) {
             return res
                 .status(404)
-                .json({ error: 'User not found' })
+                .json({ error: 'Usuario no encontrado' })
         }
         userList = users.map( u => {
             return {email: u.email, login: u.login}
@@ -141,7 +141,7 @@ getUser = (req, res) => {
         } else if (!user) {
             return res.status(404)
                 .json({
-                error: 'Incorrect login'
+                error: 'Login incorrecto'
                 });
         }
         return res.status(200).json({email: user.email, login: user.login})
@@ -192,19 +192,19 @@ updateUser = (req, res) => {
             console.error(err);
             return res.status(500)
                 .json({
-                error: 'Internal error please try again'
+                error: 'Error interno por favor inténtelo de nuevo'
             });
         } else if (!user) {
             return res.status(404)
                 .json({
-                error: 'Incorrect login'
+                error: 'Login incorrecto'
                 });
         }
 
         if(!req.body.newEmail && !req.body.newPassword){
             return res.status(400)
                 .json({
-                error: 'No parameter to update'
+                error: 'Ningún parámetro a actualizar'
                 });
         }else {
             if(req.body.newEmail){
@@ -222,13 +222,13 @@ updateCollection = (res, collection) => {
     collection.save()
         .then(() => {
             return res.status(200).json({
-                message: 'User updated!',
+                message: 'Usuario actualizado!',
             })
         })
         .catch(error => {
             return res.status(400).json({
                 error,
-                message: 'User not updated!',
+                message: 'Usuario no actualizado!',
             })
         })
 }
@@ -283,31 +283,31 @@ authenticate = (req, res) => {
     const { login, password } = req.body;
     if (!password || !login) {
         return res.status(400).json({
-            error: 'You must provide an user (password/login)',
+            error: 'Debe proporcionar un usuario (contraseña/login)',
         })
     }
     User.findOne({ login }, function(err, user) {
         if (err) {
             return res.status(500)
                 .json({
-                error: 'Internal error please try again'
+                error: 'Error interno por favor inténtelo de nuevo'
             });
         } else if (!user) {
             return res.status(404)
                 .json({
-                error: 'Incorrect login or password '
+                error: 'Nombre de usuario o contraseña incorrectos '
                 });
         } else {
             user.isCorrectPassword(password, function(err, same) {
                 if (err) {
                     return res.status(500)
                         .json({
-                        error: 'Internal error please try again'
+                        error: 'Error interno por favor inténtelo de nuevo'
                     });
                 } else if (!same) {
                     return res.status(400)
                         .json({
-                        error: 'Incorrect password or login'
+                        error: 'Contraseña o login incorrectos'
                     });
                 } else {
                     // Issue token
@@ -357,7 +357,7 @@ deleteUser = (req, res) => {
         if (!user) {
             return res
                 .status(404)
-                .json({ error: 'User not found' })
+                .json({ error: 'Usuario no encontrado' })
         }
 
         return res.status(200).json({ user })
@@ -397,7 +397,7 @@ forgottenPassword = (req, res) => {
     var email = req.body.email;
     if (!email) {
         return res.status(400).json({
-            error: 'You must provide an email',
+            error: 'Debe proporcionar un correo electrónico',
         })
     }
 
@@ -407,7 +407,7 @@ forgottenPassword = (req, res) => {
         } else if (!user) {
             return res.status(404)
                 .json({
-                error: 'Incorrect email'
+                error: 'Correo electrónico incorrecto'
                 });
         }
         const login = user.login
