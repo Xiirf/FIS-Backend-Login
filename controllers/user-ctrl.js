@@ -1,7 +1,7 @@
 /**
  * @swagger
  * tags:
- *   name: Users
+ *   name: User
  *   description: Website's users
  */
 const User = require('../models/user-model');
@@ -15,7 +15,7 @@ const nodemailer = require('nodemailer');
  *  /user:
  *    post:
  *      summary: Create a new user
- *      tags: [Users]
+ *      tags: [User]
  *      requestBody:
  *        required: true
  *        content:
@@ -61,7 +61,7 @@ createUser = (req, res) => {
  *  /users:
  *    get:
  *      summary: Get all users
- *      tags: [Users]
+ *      tags: [User]
  *      responses:
  *        "200":
  *          description: Return all users login and email
@@ -107,7 +107,7 @@ getUsers = (req, res) => {
  *  /user:
  *    get:
  *      summary: Get actual user info
- *      tags: [Users]
+ *      tags: [User]
  *      responses:
  *        "200":
  *          description: Return all users login and email
@@ -154,7 +154,7 @@ getUser = (req, res) => {
  *  /user:
  *    put:
  *      summary: Update User
- *      tags: [Users]
+ *      tags: [User]
  *      requestBody:
  *        required: true
  *        content:
@@ -239,7 +239,7 @@ updateCollection = (res, collection) => {
  *  /authenticate:
  *    post:
  *      summary: Authenticate
- *      tags: [Users]
+ *      tags: [User]
  *      requestBody:
  *        required: true
  *        content:
@@ -329,7 +329,7 @@ authenticate = (req, res) => {
  *  /user:
  *    delete:
  *      summary: Delete user
- *      tags: [Users]
+ *      tags: [User]
  *      responses:
  *        "200":
  *          description: User deleted
@@ -370,7 +370,7 @@ deleteUser = (req, res) => {
  *  /user/forgottenPassword:
  *    post:
  *      summary: Send an email to change password
- *      tags: [Users]
+ *      tags: [User]
  *      requestBody:
  *        required: true
  *        content:
