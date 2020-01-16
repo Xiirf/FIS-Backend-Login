@@ -433,7 +433,7 @@ forgottenPassword = (req, res) => {
             from: 'fistest@outlook.fr',
             to: email,
             subject: 'Password change',
-            text: token
+            text: 'https://fis-frontend.herokuapp.com/resetpassword/' + token
         };
 
         transporter.sendMail(mailOptions, function(error, info){
